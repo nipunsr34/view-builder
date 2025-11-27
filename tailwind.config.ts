@@ -59,6 +59,10 @@ export default {
           DEFAULT: "hsl(var(--modification))",
           foreground: "hsl(var(--modification-foreground))",
         },
+        deletion: {
+          DEFAULT: "hsl(var(--deletion))",
+          foreground: "hsl(var(--deletion-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
