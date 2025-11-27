@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, GitCompare, Layers, FolderTree, FileDown } from "lucide-react";
+import { FileText, GitCompare, Layers, FolderTree, FileDown, TrendingUp, ArrowLeft } from "lucide-react";
 
-type ViewMode = "hierarchy" | "base" | "amendments" | "integrated";
+type ViewMode = "hierarchy" | "base" | "amendments" | "integrated" | "kpis";
 
 interface Amendment {
   id: string;
@@ -83,7 +83,11 @@ const mockContract: ContractData = {
   ],
 };
 
-export const DocumentViewer = () => {
+interface DocumentViewerProps {
+  onBack?: () => void;
+}
+
+export const DocumentViewer = ({ onBack }: DocumentViewerProps) => {
   const [viewMode, setViewMode] = useState<ViewMode>("hierarchy");
 
   const getIntegratedContent = (section: { id: string; title: string; content: string }) => {
@@ -155,9 +159,17 @@ export const DocumentViewer = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{mockContract.title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">Contract Management System</p>
+            <div className="flex items-center gap-4">
+              {onBack && (
+                <Button variant="ghost" size="sm" onClick={onBack}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              )}
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">{mockContract.title}</h1>
+                <p className="text-sm text-muted-foreground mt-1">Contract Management System</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">
@@ -173,7 +185,7 @@ export const DocumentViewer = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-8">
+          <TabsList className="grid w-full max-w-3xl grid-cols-5 mb-8">
             <TabsTrigger value="hierarchy" className="flex items-center gap-2">
               <FolderTree className="h-4 w-4" />
               Hierarchy
@@ -189,6 +201,10 @@ export const DocumentViewer = () => {
             <TabsTrigger value="integrated" className="flex items-center gap-2">
               <Layers className="h-4 w-4" />
               Integrated View
+            </TabsTrigger>
+            <TabsTrigger value="kpis" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              KPIs
             </TabsTrigger>
           </TabsList>
 
@@ -358,6 +374,104 @@ export const DocumentViewer = () => {
                     {getIntegratedContent(section)}
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="kpis" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Contract Value</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-primary">$2.5M</p>
+                  <p className="text-sm text-muted-foreground mt-1">Annual value</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Payment Terms</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-foreground">45 Days</p>
+                  <p className="text-sm text-muted-foreground mt-1">From invoice receipt</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Contract Duration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-foreground">12 Months</p>
+                  <p className="text-sm text-muted-foreground mt-1">Renewable annually</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Total Amendments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-accent">4</p>
+                  <p className="text-sm text-muted-foreground mt-1">Active modifications</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Service Hours</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold text-foreground">9 AM - 5 PM EST</p>
+                  <p className="text-sm text-muted-foreground mt-1">24/7 emergency support</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Late Payment Fee</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-deletion">5%</p>
+                  <p className="text-sm text-muted-foreground mt-1">Penalty on overdue amounts</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Key Terms Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Services Scope</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Consulting services as outlined in Statement of Work documents with 24/7 emergency support for critical issues.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Payment Structure</h4>
+                    <p className="text-sm text-muted-foreground">
+                      45-day payment terms with installment options for projects exceeding $50,000.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Confidentiality</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Both parties must maintain confidentiality of proprietary information. Obligation survives termination.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Termination</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Modified termination clause - refer to current amendments for active termination terms.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
