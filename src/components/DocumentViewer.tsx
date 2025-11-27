@@ -2,16 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, GitCompare, Layers } from "lucide-react";
+import { FileText, GitCompare, Layers, FolderTree, FileDown } from "lucide-react";
 
-type ViewMode = "base" | "amendments" | "integrated";
+type ViewMode = "hierarchy" | "base" | "amendments" | "integrated";
 
 interface Amendment {
   id: string;
   section: string;
-  type: "modification" | "addition";
+  type: "modification" | "addition" | "deletion";
   originalText?: string;
-  newText: string;
+  newText?: string;
 }
 
 interface ContractData {
@@ -74,11 +74,17 @@ const mockContract: ContractData = {
       newText:
         "Services will be delivered during standard business hours (9 AM - 5 PM EST) on weekdays, with 24/7 emergency support available for critical issues.",
     },
+    {
+      id: "a4",
+      section: "3",
+      type: "deletion",
+      originalText: "Either party may terminate with 30 days written notice.",
+    },
   ],
 };
 
 export const DocumentViewer = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>("integrated");
+  const [viewMode, setViewMode] = useState<ViewMode>("hierarchy");
 
   const getIntegratedContent = (section: { id: string; title: string; content: string }) => {
     const sectionAmendments = mockContract.amendments.filter((a) => a.section === section.id);
@@ -95,16 +101,29 @@ export const DocumentViewer = () => {
       if (amendment.type === "modification" && amendment.originalText) {
         const index = content.indexOf(amendment.originalText);
         if (index !== -1) {
-          // Add text before the modification
           if (index > lastIndex) {
             elements.push(
               <span key={`text-${lastIndex}`}>{content.slice(lastIndex, index)}</span>
             );
           }
-          // Add the modified text
           elements.push(
             <span key={amendment.id} className="bg-modification text-modification-foreground px-1 rounded">
               {amendment.newText}
+            </span>
+          );
+          lastIndex = index + amendment.originalText.length;
+        }
+      } else if (amendment.type === "deletion" && amendment.originalText) {
+        const index = content.indexOf(amendment.originalText);
+        if (index !== -1) {
+          if (index > lastIndex) {
+            elements.push(
+              <span key={`text-${lastIndex}`}>{content.slice(lastIndex, index)}</span>
+            );
+          }
+          elements.push(
+            <span key={amendment.id} className="bg-deletion text-deletion-foreground px-1 rounded line-through">
+              {amendment.originalText}
             </span>
           );
           lastIndex = index + amendment.originalText.length;
@@ -154,20 +173,86 @@ export const DocumentViewer = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-3 mb-8">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-8">
+            <TabsTrigger value="hierarchy" className="flex items-center gap-2">
+              <FolderTree className="h-4 w-4" />
+              Hierarchy
+            </TabsTrigger>
             <TabsTrigger value="base" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Base Contract
             </TabsTrigger>
             <TabsTrigger value="amendments" className="flex items-center gap-2">
               <GitCompare className="h-4 w-4" />
-              Amendments
+              Changes
             </TabsTrigger>
             <TabsTrigger value="integrated" className="flex items-center gap-2">
               <Layers className="h-4 w-4" />
               Integrated View
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="hierarchy" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Document Hierarchy</CardTitle>
+                  <Button variant="outline" size="sm">
+                    <FileDown className="h-4 w-4 mr-2" />
+                    View as PDF
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="border-l-4 border-primary pl-4 py-2">
+                    <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Base Agreement
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {mockContract.title}
+                    </p>
+                    <div className="mt-3 ml-4 space-y-1">
+                      {mockContract.baseContract.sections.map((section) => (
+                        <div key={section.id} className="text-sm text-muted-foreground">
+                          • {section.title}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-l-4 border-accent pl-4 py-2">
+                    <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
+                      <GitCompare className="h-5 w-5" />
+                      Amendments ({mockContract.amendments.length})
+                    </h3>
+                    <div className="mt-3 ml-4 space-y-2">
+                      {mockContract.amendments.map((amendment) => (
+                        <div key={amendment.id} className="text-sm">
+                          <span className="text-muted-foreground">Amendment {amendment.id.toUpperCase()}</span>
+                          {" - "}
+                          <span className="text-foreground">Section {amendment.section}</span>
+                          {" "}
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded ml-2 ${
+                              amendment.type === "modification"
+                                ? "bg-modification text-modification-foreground"
+                                : amendment.type === "addition"
+                                ? "bg-addition text-addition-foreground"
+                                : "bg-deletion text-deletion-foreground"
+                            }`}
+                          >
+                            {amendment.type}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="base" className="space-y-6">
             <Card>
@@ -186,48 +271,65 @@ export const DocumentViewer = () => {
           </TabsContent>
 
           <TabsContent value="amendments" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contract Amendments</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {mockContract.amendments.map((amendment) => (
-                  <div
-                    key={amendment.id}
-                    className="border border-border rounded-lg p-4 space-y-2"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Section {amendment.section}
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          amendment.type === "modification"
-                            ? "bg-modification text-modification-foreground"
-                            : "bg-addition text-addition-foreground"
-                        }`}
-                      >
-                        {amendment.type}
-                      </span>
-                    </div>
-                    {amendment.originalText && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Original:</p>
-                        <p className="text-sm text-foreground line-through opacity-60">
-                          {amendment.originalText}
-                        </p>
-                      </div>
-                    )}
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">
-                        {amendment.type === "modification" ? "Modified to:" : "Addition:"}
-                      </p>
-                      <p className="text-sm text-foreground font-medium">{amendment.newText}</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+            <div className="grid gap-6">
+              {["deletion", "addition", "modification"].map((type) => {
+                const typeAmendments = mockContract.amendments.filter((a) => a.type === type);
+                if (typeAmendments.length === 0) return null;
+                
+                return (
+                  <Card key={type}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <span
+                          className={`px-3 py-1 rounded text-sm ${
+                            type === "modification"
+                              ? "bg-modification text-modification-foreground"
+                              : type === "addition"
+                              ? "bg-addition text-addition-foreground"
+                              : "bg-deletion text-deletion-foreground"
+                          }`}
+                        >
+                          {type.charAt(0).toUpperCase() + type.slice(1)}s
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          ({typeAmendments.length})
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {typeAmendments.map((amendment) => (
+                        <div
+                          key={amendment.id}
+                          className="border border-border rounded-lg p-4 space-y-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              Section {amendment.section}
+                            </span>
+                          </div>
+                          {amendment.originalText && (
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">Original:</p>
+                              <p className="text-sm text-foreground line-through opacity-60">
+                                {amendment.originalText}
+                              </p>
+                            </div>
+                          )}
+                          {amendment.newText && (
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">
+                                {type === "modification" ? "Modified to:" : type === "addition" ? "Addition:" : "Removed"}
+                              </p>
+                              <p className="text-sm text-foreground font-medium">{amendment.newText}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </TabsContent>
 
           <TabsContent value="integrated" className="space-y-6">
@@ -236,12 +338,16 @@ export const DocumentViewer = () => {
                 <CardTitle>Integrated Contract View</CardTitle>
                 <div className="flex gap-4 text-sm mt-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-modification rounded"></div>
-                    <span className="text-muted-foreground">Modified</span>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-addition rounded"></div>
                     <span className="text-muted-foreground">Addition</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-modification rounded"></div>
+                    <span className="text-muted-foreground">Modification</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-deletion rounded"></div>
+                    <span className="text-muted-foreground">Deletion</span>
                   </div>
                 </div>
               </CardHeader>
