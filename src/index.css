@@ -39,11 +39,11 @@ All colors MUST be HSL.
     --highlight: 45 100% 85%;
     --highlight-foreground: 215 25% 15%;
     
-    --addition: 142 76% 36%;
-    --addition-foreground: 355.7 100% 97.3%;
+    --addition: 25 95% 85%;
+    --addition-foreground: 25 75% 25%;
     
-    --replacement: 221.2 83.2% 53.3%;
-    --replacement-foreground: 210 40% 98%;
+    --replacement: 210 100% 85%;
+    --replacement-foreground: 210 75% 25%;
     
     --deletion: 0 84% 60%;
     --deletion-foreground: 0 0% 100%;
@@ -92,11 +92,11 @@ All colors MUST be HSL.
     --highlight: 45 93% 35%;
     --highlight-foreground: 210 40% 98%;
     
-    --addition: 142 70% 45%;
-    --addition-foreground: 144.9 80.4% 10%;
+    --addition: 25 90% 40%;
+    --addition-foreground: 25 100% 95%;
     
-    --replacement: 217.2 91.2% 59.8%;
-    --replacement-foreground: 222.2 47.4% 11.2%;
+    --replacement: 210 90% 50%;
+    --replacement-foreground: 210 100% 95%;
     
     --deletion: 0 62% 50%;
     --deletion-foreground: 210 40% 98%;
