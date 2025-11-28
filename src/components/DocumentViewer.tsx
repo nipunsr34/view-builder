@@ -257,8 +257,8 @@ export const DocumentViewer = ({ onBack }: DocumentViewerProps) => {
                     </p>
                     <div className="mt-3 ml-4 space-y-1">
                       {mockContract.baseContract.sections.map((section) => (
-                        <div key={section.id} className="text-sm text-muted-foreground">
-                          • Section {section.id}
+                        <div key={section.id} className="text-sm text-foreground">
+                          • Section {section.id}: {section.title.split('. ')[1]}
                         </div>
                       ))}
                     </div>
