@@ -55,9 +55,9 @@ export default {
           DEFAULT: "hsl(var(--addition))",
           foreground: "hsl(var(--addition-foreground))",
         },
-        modification: {
-          DEFAULT: "hsl(var(--modification))",
-          foreground: "hsl(var(--modification-foreground))",
+        replacement: {
+          DEFAULT: "hsl(var(--replacement))",
+          foreground: "hsl(var(--replacement-foreground))",
         },
         deletion: {
           DEFAULT: "hsl(var(--deletion))",

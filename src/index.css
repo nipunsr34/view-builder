@@ -42,8 +42,8 @@ All colors MUST be HSL.
     --addition: 25 95% 95%;
     --addition-foreground: 25 95% 35%;
     
-    --modification: 217 91% 92%;
-    --modification-foreground: 217 91% 35%;
+    --replacement: 217 91% 92%;
+    --replacement-foreground: 217 91% 35%;
     
     --deletion: 0 84% 95%;
     --deletion-foreground: 0 84% 40%;
@@ -95,8 +95,8 @@ All colors MUST be HSL.
     --addition: 25 95% 35%;
     --addition-foreground: 25 95% 95%;
     
-    --modification: 217 91% 35%;
-    --modification-foreground: 217 91% 92%;
+    --replacement: 217 91% 35%;
+    --replacement-foreground: 217 91% 92%;
     
     --deletion: 0 84% 35%;
     --deletion-foreground: 0 84% 95%;
